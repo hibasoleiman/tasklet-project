@@ -1,0 +1,52 @@
+# Render deployment for the Streamlit UI.
+#
+# What this does:
+#   1. pip install -e . — installs the project from pyproject.toml so the
+#      src package is importable (editable; see the note below).
+#   2. python scripts/init_db.py — runs schema.sql + seed.sql at startup, so
+#      every cold start has the same 5 users / 100 tickets to play with.
+#   3. Starts Streamlit bound to the port Render injects via $PORT.
+#
+# Free tier notes:
+#   * Sleeps after ~15 minutes idle. First request after sleep takes
+#     ~30–60s while the container wakes up.
+#   * Filesystem is ephemeral. Tickets created during runtime live until
+#     the worker restarts (sleep wake or redeploy), then the DB resets to
+#     the seeded state. For a demo this is fine, even desirable.
+#   * Persistence costs $7/mo (1 GB disk). Easy to add later.
+#
+# After this service is created on Render, set the secret in the dashboard:
+#   Environment → Add Environment Variable → ANTHROPIC_API_KEY = <your key>
+# It is intentionally NOT in this file (sync: false).
+
+services:
+  # Two deployment quirks captured here:
+  #
+  # 1. Editable install (`pip install -e .`). Without -e, the `src` package
+  #    is copied into site-packages and `__file__` inside src/db.py resolves
+  #    there — making DB_PATH point somewhere init_db never wrote. Local dev
+  #    doesn't hit this because uv defaults to editable installs.
+  #
+  # 2. init_db runs at startCommand, not buildCommand. Render's free tier
+  #    does not reliably preserve build-time writes outside of the venv into
+  #    the runtime filesystem. Running init_db at startup re-seeds the DB
+  #    inside the same filesystem the app actually reads from. Adds ~100ms
+  #    to cold starts; trivial.
+  #
+  # --server.headless true skips Streamlit's first-run "enter your email"
+  # prompt that would otherwise hang the start command.
+  # --server.enableXsrfProtection false because Render's load balancer
+  # injects headers that Streamlit's default XSRF check rejects.
+  - type: web
+    name: tasklet-streamlit
+    runtime: python
+    plan: free
+    pythonVersion: "3.11"
+    buildCommand: "pip install -e ."
+    startCommand: "python scripts/init_db.py && streamlit run src/app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true --server.enableXsrfProtection false"
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PYTHONUNBUFFERED
+        value: "1"

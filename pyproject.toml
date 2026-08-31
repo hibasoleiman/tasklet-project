@@ -1,0 +1,28 @@
+[project]
+name = "tasklet-support-agent"
+version = "0.1.0"
+description = "Tasklet Support Agent — a multi-turn AI support agent on the Anthropic Claude API with per-user data isolation, CLI + Streamlit UIs, and no framework"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.40,<1.0",
+    "pydantic>=2.6,<3",
+    "streamlit>=1.30,<2",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
