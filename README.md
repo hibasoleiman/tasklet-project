@@ -171,10 +171,4 @@ A clean run refuses all seven without ever implying an action was taken that was
 
 [render.yaml](render.yaml) defines a Render web service running the Streamlit UI, with SQLite seeded at startup. Set `ANTHROPIC_API_KEY` as a secret in the Render dashboard; it is never committed.
 
-## Possible extensions
 
-- **Conversation history compaction.** Long sessions will eventually exceed the context window. Summarize older turns and keep a sliding window of recent ones.
-- **Token-budget enforcement.** Track cumulative input/output tokens per session and fail gracefully at an org-level cap.
-- **Structured logging + tracing.** See the Observability section above.
-- **Real authentication.** The user dropdown is a demo affordance; a real deployment would integrate with an IdP and carry the authenticated user id into `dispatch()` unchanged.
-- **Another UI** (an HTTP API, a Slack bot) — reinforces that the agent doesn't know or care who's calling it.
