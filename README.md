@@ -11,6 +11,7 @@ It demonstrates:
 - Raw parameterized SQL via Python's `sqlite3` module — no ORM
 - Prompt caching on the static system prompt + tool schemas
 
+**[Live demo](https://tasklet-project-gdn2.onrender.com/)** — hosted on Render (free tier; first load may take ~50s to wake)
 ## Quickstart
 
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/).
