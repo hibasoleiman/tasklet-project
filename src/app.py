@@ -13,12 +13,7 @@ Layout:
   * "Reset conversation" wipes message history but keeps the conversation
     row (so resuming works on the next page load).
 
-Notes for students:
-  * Streamlit re-runs the entire script on every interaction. We re-open
-    the SQLite connection and re-instantiate the Anthropic client each
-    time. For a teaching demo this is fine.
-  * The agent loop in src/agent.py does not know it is being driven from
-    Streamlit. The same run_turn() function powers the CLI.
+
 """
 
 import json
